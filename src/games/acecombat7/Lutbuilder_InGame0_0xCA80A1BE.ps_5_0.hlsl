@@ -54,13 +54,13 @@ void main(
   r0.xyw = log2(r0.xyw);
   r0.xyw = float3(6.27739477, 6.27739477, 6.27739477) * r0.xyw;
   r0.xyw = exp2(r0.xyw);
-  r0.xyw = float3(10000, 10000, 10000) * r0.xyw;
+  r0.xyw = float3(100, 100, 100) * r0.xyw;
   r1.xy = v0.xy * float2(1.03225803, 1.03225803) + float2(-0.0161290318, -0.0161290318);
   r1.xyz = float3(-0.434017599, -0.434017599, -0.434017599) + r1.xyz;
   r1.xyz = float3(14, 14, 14) * r1.xyz;
   r1.xyz = exp2(r1.xyz);
   r1.xyz = r1.xyz * float3(0.180000007, 0.180000007, 0.180000007) + float3(-0.00266771927, -0.00266771927, -0.00266771927);
-  r0.rgb = r0.xyz;
+  r0.rgb = r0.xyw;
 
   // White Balance
   // _16_m0[41u].z = 6500
@@ -326,6 +326,16 @@ void main(
     if (injectedData.toneMapType != 0.f && is_hdr) {
       ap1_aces_colored = r2.xyz;
 
+      float vanillaMidGray = 0.18f;  // calculate mid grey from the second hable run
+      float renoDRTContrast = 1.f;
+      float renoDRTFlare = 0.f;
+      float renoDRTShadows = 1.f;
+      float renoDRTDechroma = injectedData.colorGradeBlowout;
+      float renoDRTSaturation = 1.f;  //
+      float renoDRTHighlights = 1.f;
+
+      float3 config_color = renodx::color::bt709::from::AP1(ap1_graded_color);
+
       renodx::tonemap::Config config = renodx::tonemap::config::Create();
       config.type = injectedData.toneMapType;
       config.peak_nits = injectedData.toneMapPeakNits;
@@ -336,24 +346,15 @@ void main(
       config.shadows = injectedData.colorGradeShadows;
       config.contrast = injectedData.colorGradeContrast;
       config.saturation = injectedData.colorGradeSaturation;
-      config.hue_correction_color = ap1_aces_colored;
-      const float ACES_HIGHLIGHTS = 0.96f;
-      const float ACES_SHADOWS = 1.12f;
-      const float ACES_CONTRAST = 1.2f;
-      const float ACES_FLARE = 0.1355f;
 
-      config.reno_drt_highlights = 1.20f;
-      config.reno_drt_shadows = 1.0f;
-      config.reno_drt_contrast = 1.80f;
-      config.reno_drt_saturation = 1.80f;
-      config.reno_drt_dechroma = injectedData.colorGradeBlowout;
-      config.reno_drt_flare = 0.f;
-
-      float3 config_color = renodx::color::bt709::from::AP1(ap1_graded_color);
-
-      if (injectedData.toneMapType == 3.f) {  // Only apply hue correction if RenoDRT is selected
-        config_color = renodx::color::correct::Hue(config_color, renodx::tonemap::ACESFittedAP1(config_color));
-      }
+      config.reno_drt_highlights = renoDRTHighlights;
+      config.reno_drt_shadows = renoDRTShadows;
+      config.reno_drt_contrast = renoDRTContrast;
+      config.reno_drt_saturation = renoDRTSaturation;
+      config.reno_drt_dechroma = renoDRTDechroma;
+      config.mid_gray_value = vanillaMidGray;
+      config.mid_gray_nits = vanillaMidGray * 100.f;
+      config.reno_drt_flare = renoDRTFlare;
 
       renodx::tonemap::config::DualToneMap dual_tone_map = renodx::tonemap::config::ApplyToneMaps(config_color, config);
       hdr_color = dual_tone_map.color_hdr;

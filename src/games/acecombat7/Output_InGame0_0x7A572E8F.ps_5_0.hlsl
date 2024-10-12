@@ -71,6 +71,8 @@ void main(
   r1.x = rcp(r1.x);
   r1.x = r1.x * r1.x;
 
+  float3 untonemapped = r0.yzw;
+
   r0.yzw = r1.xxx * r0.yzw;
   r0.x = r0.x * cb0[33].x + cb0[33].y;
   r1.xyz = r0.yzw * r0.xxx;
@@ -86,16 +88,15 @@ void main(
   r1.xyz = log2(r1.xyz);
   r1.xyz = float3(78.84375, 78.84375, 78.84375) * r1.xyz;
   r1.xyz = exp2(r1.xyz);
-
+  /*
   r0.xyz = r0.yzw * r0.xxx + float3(0.00266771927, 0.00266771927, 0.00266771927);
   r0.xyz = log2(r0.xyz);
   r0.xyz = saturate(r0.xyz * float3(0.0714285746, 0.0714285746, 0.0714285746) + float3(0.610726953, 0.610726953, 0.610726953));
   r0.xyz = r1.www ? r1.xyz : r0.xyz;
   r0.xyz = r0.xyz * float3(0.96875, 0.96875, 0.96875) + float3(0.015625, 0.015625, 0.015625);
   r0.xyz = t3.Sample(s3_s, r0.xyz).xyz;
-  r0.xyz = float3(1.04999995, 1.04999995, 1.04999995) * r0.xyz;
+  r0.xyz = float3(1.04999995, 1.04999995, 1.04999995) * r0.xyz;*/
 
-  float3 untonemapped = r0.yzw * r1.x;
   float3 lut_input = renodx::color::pq::from::BT2020(untonemapped, 100.f);
   float3 sampled = renodx::lut::Sample(t3, s3_s, lut_input);
   float3 post_lut = renodx::color::bt2020::from::PQ(sampled, 100.f);
@@ -132,9 +133,8 @@ void main(
     o0.xyz = r0.xyz;
   }
 
-  o0.rgb = post_lut;
-  o0.rgb = renodx::color::bt2020::from::BT709(o0.rgb);
-  o0.rgb = renodx::color::pq::Encode(o0.rgb * (203.f / 10000.f));
+  o0.rgb = post_lut.rgb;
+  o0.w = 1.f;
     
   return;
 }

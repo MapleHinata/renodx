@@ -76,7 +76,7 @@ void main(
   r0.yzw = r1.xxx * r0.yzw;
   r1.x = r0.x * cb0[33].x + cb0[33].y;
   r1.yzw = r1.xxx * r0.yzw;
-  /*r2.x = cmp(asuint(cb0[34].x) >= 3); //output device
+  r2.x = cmp(asuint(cb0[34].x) >= 3); //output device
   //Encode r1 as PQ
   r1.yzw = float3(9.99999975e-05, 9.99999975e-05, 9.99999975e-05) * r1.yzw;
   r1.yzw = log2(r1.yzw);
@@ -89,7 +89,7 @@ void main(
   r1.yzw = log2(r1.yzw);
   r1.yzw = float3(78.84375, 78.84375, 78.84375) * r1.yzw;
   r1.yzw = exp2(r1.yzw);
-  
+  /*
   r0.yzw = r0.yzw * r1.xxx + float3(0.00266771927, 0.00266771927, 0.00266771927);
   r0.yzw = log2(r0.yzw);
   r0.yzw = saturate(r0.yzw * float3(0.0714285746, 0.0714285746, 0.0714285746) + float3(0.610726953, 0.610726953, 0.610726953));
@@ -101,7 +101,7 @@ void main(
   float3 lut_input = renodx::color::pq::from::BT2020(untonemapped, 100.f);
   float3 sampled = renodx::lut::Sample(t3, s3_s, lut_input);
   float3 post_lut = renodx::color::bt2020::from::PQ(sampled, 100.f);
-  r0.xyz = post_lut;
+  r1.xyz = post_lut;
 
   o0.w = saturate(dot(r1.xyz, float3(0.298999995, 0.587000012, 0.114)));
   r0.x = r0.x * 0.00390625 + -0.001953125;

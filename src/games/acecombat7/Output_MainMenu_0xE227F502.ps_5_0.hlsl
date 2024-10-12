@@ -135,9 +135,8 @@ void main(
     o0.xyz = r0.xyz;
   }
 
-  o0.rgb = post_lut;
-  o0.rgb = renodx::color::bt2020::from::BT709(o0.rgb);
-  o0.rgb = renodx::color::pq::Encode(o0.rgb * (203.f / 10000.f));
+  o0.rgb = post_lut.rgb;
+  o0.w = 1.f;
 
   return;
 }
