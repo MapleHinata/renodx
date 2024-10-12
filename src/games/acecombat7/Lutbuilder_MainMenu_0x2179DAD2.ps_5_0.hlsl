@@ -1,11 +1,7 @@
-// ---- Created with 3Dmigoto v1.4.1 on Wed Oct  9 17:39:11 2024
-// ACES Lutbuilder
+// ---- Created with 3Dmigoto v1.4.1 on Fri Oct 11 18:35:47 2024
+// ACES Lutbuilder (Main Menu)
 
 #include "./shared.h"
-Texture2D<float4> t0 : register(t0);
-
-SamplerState s0_s : register(s0);
-
 cbuffer cb0 : register(b0) {
   float4 cb0[57];
 }
@@ -60,7 +56,7 @@ void main(
   r1.xyz = float3(14, 14, 14) * r1.xyz;
   r1.xyz = exp2(r1.xyz);
   r1.xyz = r1.xyz * float3(0.180000007, 0.180000007, 0.180000007) + float3(-0.00266771927, -0.00266771927, -0.00266771927);
-  r0.rgb = r0.xyz;
+  r0.rgb = r0.xyw;
 
   // White Balance
   // _16_m0[41u].z = 6500
@@ -320,9 +316,7 @@ void main(
     // AP1_RGB2Y
     r0.w = dot(r2.xyz, float3(0.272228718, 0.674081743, 0.0536895171));
     r2.xyz = r2.xyz + -r0.www;
-
     r2.xyz = r2.xyz * float3(0.959999979, 0.959999979, 0.959999979) + r0.www;  // End of ACES:RRT
-
     if (injectedData.toneMapType != 0.f && is_hdr) {
       ap1_aces_colored = r2.xyz;
 
@@ -434,47 +428,6 @@ void main(
     r3.y = dot(float3(-0.130257145, 1.14080286, -0.0105485283), r2.xyz);
     r3.z = dot(float3(-0.0240032747, -0.128968775, 1.15297174), r2.xyz);
     r0.xyz = max(float3(0, 0, 0), r3.xyz);
-  }
-
-  float3 lut_input_color = r0.xyz;
-  if (injectedData.colorGradeLUTStrength != 1.f || injectedData.colorGradeLUTScaling != 0.f) {
-    renodx::lut::Config lut_config = renodx::lut::config::Create(
-        s0_s,
-        injectedData.colorGradeLUTStrength,
-        injectedData.colorGradeLUTScaling, renodx::lut::config::type::SRGB, renodx::lut::config::type::SRGB, 16);
-
-    float3 post_lut_color = renodx::lut::Sample(t0, lut_config, lut_input_color);
-    r0.rgb = post_lut_color;
-  } else {
-    r0.xyz = saturate(r0.xyz);
-    r2.xyz = float3(12.9200001, 12.9200001, 12.9200001) * r0.xyz;
-    r3.xyz = cmp(r0.xyz >= float3(0.00313066994, 0.00313066994, 0.00313066994));
-    r0.xyz = log2(r0.xyz);
-    r0.xyz = float3(0.416666657, 0.416666657, 0.416666657) * r0.xyz;
-    r0.xyz = exp2(r0.xyz);
-    r0.xyz = r0.xyz * float3(1.05499995, 1.05499995, 1.05499995) + float3(-0.0549999997, -0.0549999997, -0.0549999997);
-    r0.xyz = r3.xyz ? r0.xyz : r2.xyz;
-    r2.yzw = r0.xyz * float3(0.9375, 0.9375, 0.9375) + float3(0.03125, 0.03125, 0.03125);
-    r0.w = r2.w * 16 + -0.5;
-    r1.w = floor(r0.w);
-    r0.w = -r1.w + r0.w;
-    r1.w = r2.y + r1.w;
-    r2.x = 0.0625 * r1.w;
-    r3.xyz = t0.Sample(s0_s, r2.xz).xyz;
-    r2.xy = float2(0.0625, 0) + r2.xz;
-    r2.xyz = t0.Sample(s0_s, r2.xy).xyz;
-    r2.xyz = r2.xyz + -r3.xyz;
-    r2.xyz = r0.www * r2.xyz + r3.xyz;
-    r2.xyz = cb0[30].xxx * r2.xyz;
-    r0.xyz = cb0[29].xxx * r0.xyz + r2.xyz;
-    r0.xyz = max(float3(6.10351999e-05, 6.10351999e-05, 6.10351999e-05), r0.xyz);
-    r2.xyz = cmp(float3(0.0404499993, 0.0404499993, 0.0404499993) < r0.xyz);
-    r3.xyz = r0.xyz * float3(0.947867274, 0.947867274, 0.947867274) + float3(0.0521326996, 0.0521326996, 0.0521326996);
-    r3.xyz = log2(r3.xyz);
-    r3.xyz = float3(2.4000001, 2.4000001, 2.4000001) * r3.xyz;
-    r3.xyz = exp2(r3.xyz);
-    r0.xyz = float3(0.0773993805, 0.0773993805, 0.0773993805) * r0.xyz;
-    r0.xyz = r2.xyz ? r3.xyz : r0.xyz;
   }
   r2.xyz = r0.xyz * r0.xyz;
   r0.xyz = cb0[17].yyy * r0.xyz;
@@ -1469,9 +1422,7 @@ void main(
       }
     }
   }
-
   o0.xyz = float3(0.952381015, 0.952381015, 0.952381015) * r0.xyz;
   o0.w = 0;
-
   return;
 }
