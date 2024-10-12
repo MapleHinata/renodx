@@ -60,7 +60,7 @@ void main(
   r1.xyz = float3(14, 14, 14) * r1.xyz;
   r1.xyz = exp2(r1.xyz);
   r1.xyz = r1.xyz * float3(0.180000007, 0.180000007, 0.180000007) + float3(-0.00266771927, -0.00266771927, -0.00266771927);
-  r0.rgb = r0.xyw;
+  r0.rgb = r0.xyw;  // force pq output
 
   // White Balance
   // _16_m0[41u].z = 6500
