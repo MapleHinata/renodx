@@ -107,13 +107,5 @@ void main(
   }
   o0.xyz = cb0[23].yyy * r0.xzw;
   o0.w = r1.w;
-  
-  o0.rgb = saturate(o0.rgb);
-  /*if (injectedData.toneMapGammaCorrection == 1.f) {
-    o0.rgb = renodx::math::SafePow(o0.rgb, 2.2f);  // 2.2 gamma correction
-  } else {
-    o0.rgb = renodx::color::srgb::Decode(o0.rgb);
-  }*/
-  o0.rgb *= injectedData.toneMapUINits / 80.f;   // Added ui slider
   return;
 }

@@ -12,7 +12,10 @@
 #include <embed/0x7A572E8F.h>
 #include <embed/0xE5CF5B91.h>
 #include <embed/0xE227F502.h>
-#include <embed/0x759F7DBB.h>
+#include <embed/0x6165FC93.h>
+#include <embed/0x541EC7AA.h>
+#include <embed/0x53ED6C97.h>
+#include <embed/0x3BCAB242.h>
 
 #include <deps/imgui/imgui.h>
 #include <include/reshade.hpp>
@@ -31,7 +34,10 @@ renodx::mods::shader::CustomShaders custom_shaders = {
     CustomShaderEntry(0xE227F502),  //output -- main menu -- variant 0
     CustomShaderEntry(0x7A572E8F),  //output -- in-game -- variant 0 (seems to be used with in-game brightness set?)
     CustomShaderEntry(0xE5CF5B91),  //output -- in-game -- variant 1 (gets used with zero brightness correction)
-    CustomShaderEntry(0x759F7DBB),  //main menu
+    CustomShaderEntry(0x6165FC93),  //logos
+    CustomShaderEntry(0x3BCAB242),  //main menu
+    CustomShaderEntry(0x541EC7AA),  //hud
+    CustomShaderEntry(0x53ED6C97)   //final
 };
 
 ShaderInjectData shader_injection;
