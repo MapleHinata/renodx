@@ -50,7 +50,7 @@ void main(
   r0.xyw = log2(r0.xyw);
   r0.xyw = float3(6.27739477, 6.27739477, 6.27739477) * r0.xyw;
   r0.xyw = exp2(r0.xyw);
-  r0.xyw = float3(100, 100, 100) * r0.xyw;
+  r0.xyw = float3(100, 100, 100) * r0.xyw;  // was r0.xyw = float3(10000, 10000, 10000) * r0.xyw;
   r1.xy = v0.xy * float2(1.03225803, 1.03225803) + float2(-0.0161290318, -0.0161290318);
   r1.xyz = float3(-0.434017599, -0.434017599, -0.434017599) + r1.xyz;
   r1.xyz = float3(14, 14, 14) * r1.xyz;
@@ -418,7 +418,7 @@ void main(
       r2.xyz = r2.xyz * float3(0.930000007, 0.930000007, 0.930000007) + r0.www;
       r2.xyz = max(float3(0, 0, 0), r2.xyz);
       sdr_ap1_color = r2.xyz;
-    }
+    } //added by the mod
 
     if (is_hdr) {
       r2.xyz = sdr_ap1_color;
