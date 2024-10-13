@@ -23,6 +23,8 @@
 #include <embed/0xF51185E9.h>
 #include <embed/0x5E0455BC.h>
 #include <embed/0x1E252703.h>
+#include <embed/0x645484C3.h>
+#include <embed/0xDC6E4B0E.h>
 
 #include <deps/imgui/imgui.h>
 #include <include/reshade.hpp>
@@ -42,7 +44,6 @@ renodx::mods::shader::CustomShaders custom_shaders = {
     CustomShaderEntry(0x7A572E8F),  //output -- in-game -- variant 0 (seems to be used with in-game brightness set?)
     CustomShaderEntry(0xE5CF5B91),  //output -- in-game -- variant 1 (gets used with zero brightness correction)
     //CustomShaderEntry(0x6165FC93),  //ui
-    CustomShaderEntry(0xC9564C2A),  //ui
     CustomShaderEntry(0x541EC7AA),  //hud
     CustomShaderEntry(0x53ED6C97),  //final (uw only :( )
     CustomShaderEntry(0x759F7DBB),  //ui compose
@@ -52,7 +53,9 @@ renodx::mods::shader::CustomShaders custom_shaders = {
     CustomShaderEntry(0xF51185E9),  //icons
     CustomShaderEntry(0x5E0455BC),  //icons
     CustomShaderEntry(0x1E252703),  //holograms
-    CustomShaderEntry(0xC9564C2A),  //ui draw
+    CustomSwapchainShader(0xC9564C2A),  //ui draw
+    CustomShaderEntry(0x645484C3),  //fmvs
+    CustomShaderEntry(0xDC6E4B0E)   //ui compositing - in-game
 };
 
 ShaderInjectData shader_injection;

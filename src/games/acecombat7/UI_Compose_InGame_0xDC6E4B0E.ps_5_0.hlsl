@@ -1,4 +1,4 @@
-// ---- Created with 3Dmigoto v1.4.1 on Fri Oct 11 19:00:35 2024
+// ---- Created with 3Dmigoto v1.4.1 on Fri Oct 11 21:13:12 2024
 
 #include "./shared.h"
 
@@ -47,13 +47,27 @@ void main(
   uint4 bitmask, uiDest;
   float4 fDest;
 
-  r0.x = cmp(0.5 < cb0[24].y);
+  r0.xy = v0.xy * cb1[128].xy + -cb1[126].xy;
+  r0.xy = cb1[127].zw * r0.xy;
+  r0.z = cmp(1 < cb1[127].y);
+  r0.w = 1.77777779 * cb1[127].y;
+  r0.w = cb1[127].x / r0.w;
+  r0.w = r0.x * r0.w;
+  r0.x = r0.z ? r0.w : r0.x;
+  r0.z = cmp(0.5 < cb0[24].y);
+  r0.w = cmp(r0.x >= cb0[19].x);
+  r0.x = cmp(cb0[19].z >= r0.x);
+  r0.x = r0.x ? r0.w : 0;
+  r0.w = cmp(r0.y >= cb0[19].y);
+  r0.x = r0.w ? r0.x : 0;
+  r0.y = cmp(cb0[19].w >= r0.y);
+  r0.x = r0.y ? r0.x : 0;
+  r0.x = (int)r0.x | (int)r0.z;
   r1.xyzw = t0.Sample(s0_s, v0.xy).xyzw;
   r2.xyzw = t1.Sample(s1_s, v0.xy).xyzw;
-  r1.xyz = renodx::math::SafePow(r1.xyz, 1 / 2.2);  // set main game as gamma space (we will linearize it later.)
-  r2.xyz = saturate(r2.xyz);                        // we don't care about wide gamut UI colors
+  r2.xyz = saturate(r2.xyz);                         // we don't care about wide gamut UI colors
   r2.xyz *= renodx::math::SafePow(r2.xyz, 1 / 2.2);  // set ui as gamma space (we will linearize it later.)
-  r2.xyz *= injectedData.toneMapUINits / 80.f;  // Added ui slider
+  r2.xyz *= injectedData.toneMapUINits / 80.f;       // Added ui slider
   r0.y = dot(r1.xyz, float3(0.298911989,0.586610973,0.114477001));
   r0.y = saturate(1 + -r0.y);
   r0.y = r0.x ? 1 : r0.y;
@@ -80,6 +94,14 @@ void main(
   r4.xyz = float3(3,3,3) * r4.xyz;
   r0.z = saturate(r0.z + r0.z);
   r3.xyz = r4.xyz * r0.zzz + r3.xyz;
+  r4.xw = float2(2,2) * cb1[128].zw;
+  r4.yz = float2(0,0);
+  r5.xyzw = v0.xyxy + -r4.xyzw;
+  r6.xyz = t1.Sample(s1_s, r5.xy).xyz;
+  r4.xyzw = v0.xyxy + r4.xyzw;
+  r7.xyz = t1.Sample(s1_s, r4.xy).xyz;
+  r5.xyz = t1.Sample(s1_s, r5.zw).xyz;
+  r4.xyz = t1.Sample(s1_s, r4.zw).xyz;
   if (r0.x != 0) {
     r0.x = 1 + -r0.y;
     r0.xzw = r1.xyz * r0.xxx + r2.xyz;
@@ -87,14 +109,6 @@ void main(
     r2.w = 1 + -r2.w;
     r0.xzw = r0.xzw * r2.www + r3.xyz;
   } else {
-    r4.xw = float2(2,2) * cb1[128].zw;
-    r4.yz = float2(0,0);
-    r5.xyzw = v0.xyxy + -r4.xyzw;
-    r6.xyz = t1.Sample(s1_s, r5.xy).xyz;
-    r4.xyzw = v0.xyxy + r4.xyzw;
-    r7.xyz = t1.Sample(s1_s, r4.xy).xyz;
-    r5.xyz = t1.Sample(s1_s, r5.zw).xyz;
-    r4.xyz = t1.Sample(s1_s, r4.zw).xyz;
     r2.w = dot(r6.xyz, float3(0.298911989,0.586610973,0.114477001));
     r3.w = dot(r7.xyz, float3(0.298911989,0.586610973,0.114477001));
     r2.w = r3.w * r2.w;
@@ -111,9 +125,5 @@ void main(
   }
   o0.xyz = cb0[23].yyy * r0.xzw;
   o0.w = r1.w;
-
-  o0.rgb = renodx::math::SafePow(o0.rgb, 2.2f);  // 2.2 gamma correction
-  o0.a = sign(o0.a) * pow(abs(o0.a), 2.2f); // 2.2 gamma on Alpha
-
   return;
 }

@@ -1,4 +1,6 @@
-// ---- Created with 3Dmigoto v1.4.1 on Fri Oct 11 21:13:02 2024
+// ---- Created with 3Dmigoto v1.4.1 on Fri Oct 11 21:13:04 2024
+// Video Playback?
+
 #include "./shared.h"
 
 Texture2D<float4> t0 : register(t0);
@@ -38,8 +40,6 @@ void main(
   r0.xyz = t0.Sample(s0_s, r0.xy).xyz;
   r0.xyz = cb1[1].xyz + r0.xyz;
   r0.xyz = max(float3(0,0,0), r0.xyz);
-  r0.w = saturate(v1.w);
-  r0.xyz = r0.xyz * r0.www;
   r0.xyz = v1.xyz * r0.xyz;
   r1.xyz = log2(r0.xyz);
   r1.xyz = cb0[2].xxx * r1.xyz;
@@ -52,11 +52,16 @@ void main(
   r1.xyz = r1.xyz ? r2.xyz : r3.xyz;
   r0.w = cmp(cb0[2].y != 1.000000);
   o0.xyz = r0.www ? r1.xyz : r0.xyz;
-  o0.w = 0;
+  o0.w = v1.w;
 
-  //o0.rgb = renodx::math::SafePow(o0.rgb, 2.2f);  // 2.2 gamma correction
-  //o0.rgb *= injectedData.toneMapUINits / 80.f;  // Added ui slider
-  //o0.rgb = renodx::math::SafePow(o0.rgb, 1 / 2.2);
+  o0.rgb = saturate(o0.rgb);
+  o0.rgb = injectedData.toneMapGammaCorrection
+               ? pow(o0.rgb, 2.2f)
+               : renodx::color::srgb::Decode(o0.rgb);
+  float videoPeak = injectedData.toneMapPeakNits / (injectedData.toneMapGameNits / 203.f);
+  o0.rgb = renodx::tonemap::inverse::bt2446a::BT709(o0.rgb, 100.f, videoPeak);
+  o0.rgb *= injectedData.toneMapPeakNits / videoPeak;
+  o0.rgb /= 80.f;
 
   return;
 }

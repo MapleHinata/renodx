@@ -48,9 +48,9 @@ void main(
 
   //o0.rgb = saturate(o0.rgb); 
   //o0.a = saturate(o0.a);
-  o0.rgb = renodx::math::SafePow(o0.rgb, 2.2f);  // 2.2 gamma correction
-  o0.rgb *= injectedData.toneMapUINits / 80.f;  // Added ui slider
-  o0.rgb = renodx::math::SafePow(o0.rgb, 1 / 2.2);
+  //o0.rgb = renodx::math::SafePow(o0.rgb, 2.2f);  // 2.2 gamma correction
+  //o0.rgb *= injectedData.toneMapUINits / 80.f;  // Added ui slider
+  //o0.rgb = renodx::math::SafePow(o0.rgb, 1 / 2.2);
 
   return;
 }
