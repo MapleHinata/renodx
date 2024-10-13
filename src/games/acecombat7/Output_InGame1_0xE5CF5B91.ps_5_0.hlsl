@@ -137,7 +137,6 @@ void main(
   }
 
   o0.rgb = post_lut.rgb;
-  o0.rgb *= injectedData.toneMapGameNits / injectedData.toneMapUINits;
   o0.w = 1.f;
 
   return;

@@ -66,10 +66,12 @@ renodx::utils::settings::Settings settings = {
         .binding = &shader_injection.toneMapType,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
         .default_value = 3.f,
+        .can_reset = false,
         .label = "Tone Mapper",
         .section = "Tone Mapping",
         .tooltip = "Sets the tone mapper type",
         .labels = {"Vanilla", "None", "ACES", "RenoDRT"},
+        .is_enabled = []() { return shader_injection.toneMapType != 3; },
     },
     new renodx::utils::settings::Setting{
         .key = "toneMapPeakNits",
@@ -105,6 +107,7 @@ renodx::utils::settings::Settings settings = {
         .key = "toneMapGammaCorrection",
         .binding = &shader_injection.toneMapGammaCorrection,
         .value_type = renodx::utils::settings::SettingValueType::BOOLEAN,
+        .default_value = 1.0f,
         .label = "Gamma Correction",
         .section = "Tone Mapping",
         .tooltip = "Emulates a 2.2 EOTF (use with HDR or sRGB)",
@@ -183,12 +186,6 @@ renodx::utils::settings::Settings settings = {
         .tooltip = "Scales the color grade LUT to full range when size is clamped.",
         .max = 100.f,
         .parse = [](float value) { return value * 0.01f; },
-    },
-
-    new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
-        .label = " - Please make sure 'Brightness' is set to 0 in Options -> Display.\r\n \r\n - Join the HDR Den discord for help!",
-        .section = "Instructions",
     },
 
     new renodx::utils::settings::Setting{
