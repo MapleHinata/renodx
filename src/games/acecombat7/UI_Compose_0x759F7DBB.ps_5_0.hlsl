@@ -51,9 +51,10 @@ void main(
   r1.xyzw = t0.Sample(s0_s, v0.xy).xyzw;
   r2.xyzw = t1.Sample(s1_s, v0.xy).xyzw;
   r1.xyz = renodx::math::SafePow(r1.xyz, 1 / 2.2);  // set main game as gamma space (we will linearize it later.)
-  r2.xyz = saturate(r2.xyz);                        // we don't care about wide gamut UI colors
+  r2.xyz = saturate(r2.xyz);
+  r2.a = saturate(r2.a);                      // we don't care about wide gamut UI colors
   r2.xyz *= renodx::math::SafePow(r2.xyz, 1 / 2.2);  // set ui as gamma space (we will linearize it later.)
-  r2.xyz *= injectedData.toneMapUINits / 80.f;  // Added ui slider
+  r2.xyz *= injectedData.toneMapUINits / 140.f;  // Added ui slider
   r0.y = dot(r1.xyz, float3(0.298911989,0.586610973,0.114477001));
   r0.y = saturate(1 + -r0.y);
   r0.y = r0.x ? 1 : r0.y;
