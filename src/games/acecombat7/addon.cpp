@@ -240,16 +240,17 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
           .new_format = reshade::api::format::r16g16b16a16_float,
       });
 
-      /// BGRA8_UNORM
+      /*/// BGRA8_UNORM
       renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
           .old_format = reshade::api::format::b8g8r8a8_unorm,
           .new_format = reshade::api::format::r16g16b16a16_float,
-      });
+      });*/
 
       //// BGRA10A2_UNORM
       renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
           .old_format = reshade::api::format::b10g10r10a2_unorm,
           .new_format = reshade::api::format::r16g16b16a16_float,
+          .dimensions = {32,32,32}
       });
 
       break;
