@@ -12,10 +12,17 @@
 #include <embed/0x7A572E8F.h>
 #include <embed/0xE5CF5B91.h>
 #include <embed/0xE227F502.h>
-#include <embed/0x6165FC93.h>
+//#include <embed/0x6165FC93.h>
 #include <embed/0x541EC7AA.h>
 #include <embed/0x53ED6C97.h>
-#include <embed/0x3BCAB242.h>
+#include <embed/0x759F7DBB.h>
+#include <embed/0xC9564C2A.h>
+#include <embed/0x82BED845.h>
+#include <embed/0x41FB3106.h>
+#include <embed/0x79821615.h>
+#include <embed/0xF51185E9.h>
+#include <embed/0x5E0455BC.h>
+#include <embed/0x1E252703.h>
 
 #include <deps/imgui/imgui.h>
 #include <include/reshade.hpp>
@@ -34,10 +41,18 @@ renodx::mods::shader::CustomShaders custom_shaders = {
     CustomShaderEntry(0xE227F502),  //output -- main menu -- variant 0
     CustomShaderEntry(0x7A572E8F),  //output -- in-game -- variant 0 (seems to be used with in-game brightness set?)
     CustomShaderEntry(0xE5CF5B91),  //output -- in-game -- variant 1 (gets used with zero brightness correction)
-    CustomShaderEntry(0x6165FC93),  //logos
-    CustomShaderEntry(0x3BCAB242),  //main menu
+    //CustomShaderEntry(0x6165FC93),  //ui
+    CustomShaderEntry(0xC9564C2A),  //ui
     CustomShaderEntry(0x541EC7AA),  //hud
-    CustomShaderEntry(0x53ED6C97)   //final
+    CustomShaderEntry(0x53ED6C97),  //final (uw only :( )
+    CustomShaderEntry(0x759F7DBB),  //ui compose
+    CustomShaderEntry(0x82BED845),  //copy
+    CustomShaderEntry(0x41FB3106),  //main menu
+    CustomShaderEntry(0x79821615),  //main menu
+    CustomShaderEntry(0xF51185E9),  //icons
+    CustomShaderEntry(0x5E0455BC),  //icons
+    CustomShaderEntry(0x1E252703),  //holograms
+    CustomShaderEntry(0xC9564C2A),  //ui draw
 };
 
 ShaderInjectData shader_injection;
@@ -174,7 +189,7 @@ renodx::utils::settings::Settings settings = {
 
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::TEXT,
-        .label = " - Please make sure 'Screen Brightness' and 'Field Brightness' are set to default in System Settings/Graphics Settings. \r\n - You can hit 'Revert Category' under Graphics settings to reset said settings to default. \r\n \r\n - Join the HDR Den discord for help!",
+        .label = " - Please make sure 'Brightness' is set to 0 in Options -> Display.\r\n \r\n - Join the HDR Den discord for help!",
         .section = "Instructions",
     },
 
@@ -223,7 +238,6 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
       renodx::mods::shader::force_pipeline_cloning = true; //So the mod works with the toolkit
       renodx::mods::swapchain::force_borderless = false;     // needed for stability
       renodx::mods::swapchain::prevent_full_screen = false;  // needed for stability
-      renodx::mods::shader::trace_unmodified_shaders = true;
 
       /// BGRA8_TYPELESS
       renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
@@ -234,12 +248,6 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
       /// BGRA8_UNORM
       renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
           .old_format = reshade::api::format::b8g8r8a8_unorm,
-          .new_format = reshade::api::format::r16g16b16a16_float,
-      });
-
-      /// BGRA8_UNORM_SRGB (WTF??)
-      renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
-          .old_format = reshade::api::format::b8g8r8a8_unorm_srgb,
           .new_format = reshade::api::format::r16g16b16a16_float,
       });
 

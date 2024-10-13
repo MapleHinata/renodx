@@ -97,9 +97,9 @@ void main(
   r0.yzw = t3.Sample(s3_s, r0.yzw).xyz;
   r1.xyz = float3(1.04999995,1.04999995,1.04999995) * r0.yzw;*/
 
-  float3 lut_input = renodx::color::pq::from::BT2020(untonemapped, 100.f);
+  float3 lut_input = renodx::color::pq::Encode(untonemapped, 100.f);
   float3 sampled = renodx::lut::Sample(t3, s3_s, lut_input);
-  float3 post_lut = renodx::color::bt2020::from::PQ(sampled, 100.f);
+  float3 post_lut = renodx::color::pq::Decode(sampled, 100.f);
   r1.xyz = post_lut;
 
   o0.w = saturate(dot(r1.xyz, float3(0.298999995,0.587000012,0.114)));
@@ -135,8 +135,9 @@ void main(
     o0.xyz = r0.xyz;
   }
 
-  o0.rgb = post_lut.rgb;
-  o0.w = 1.f;
+  o0.rgb = post_lut;
+  o0.rgb *= injectedData.toneMapGameNits / injectedData.toneMapUINits;
+  o0.rgb = renodx::color::pq::Encode(o0.rgb * (203.f / 10000.f));
 
   return;
 }

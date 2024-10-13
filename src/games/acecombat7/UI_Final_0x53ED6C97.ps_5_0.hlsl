@@ -56,9 +56,5 @@ void main(
   o0.w = r0.w;
   o1.xyzw = float4(0,0,0,0);
 
-  o0.rgb = renodx::math::SafePow(o0.rgb, 2.2f);
-  o0.rgb *= injectedData.toneMapGameNits;
-  o0.rgb /= 80.f;
-
   return;
 }

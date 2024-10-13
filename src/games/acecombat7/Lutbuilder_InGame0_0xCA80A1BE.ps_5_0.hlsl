@@ -502,7 +502,7 @@ void main(
     // bool is_pq = (output_type == 3u || output_type == 4u);
     bool is_pq = true;
     if (is_pq) {
-      final_color = renodx::color::pq::from::BT2020(final_color, injectedData.toneMapGameNits);
+      final_color = renodx::color::pq::from::BT2020(final_color, injectedData.toneMapGameNits );
     }
 
     o0.rgba = float4(final_color * 0.952381015, 0);
