@@ -168,5 +168,7 @@ float3 applyUserTonemap(float3 untonemapped, float3 vanilla) {
     outputColor = renodx::tonemap::config::Apply(outputColor, config);
   }
 
+  outputColor = renodx::tonemap::UpgradeToneMap(outputColor, saturate(outputColor), vanilla, 1.f);
+
   return outputColor;
 }
