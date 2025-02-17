@@ -21,20 +21,11 @@
 namespace {
 
 renodx::mods::shader::CustomShaders custom_shaders = {
+    CustomShaderEntry(0x0E7E372B),
     CustomShaderEntry(0x3918E9B9),
     CustomShaderEntry(0x127C5F55),
     CustomShaderEntry(0x947F3706),
     CustomShaderEntry(0xC279021A),
-    CustomShaderEntry(0x9AC098D0),
-    CustomShaderEntry(0x3C4A9CFA),
-    CustomShaderEntry(0x4BCECE5C),
-    CustomShaderEntry(0x8678E1EF),
-    CustomShaderEntry(0xB1281263),
-    CustomShaderEntry(0xC01EF897),
-    CustomShaderEntry(0xC7B9C6E9),
-    CustomShaderEntry(0xCC049B0B),
-    CustomShaderEntry(0xCD0B5762),
-    CustomShaderEntry(0xD72D0A96),
 };
 
 ShaderInjectData shader_injection;
@@ -87,6 +78,17 @@ renodx::utils::settings::Settings settings = {
         .tint = 0x927A13,
         .min = 48.f,
         .max = 500.f,
+    },
+    new renodx::utils::settings::Setting{
+        .key = "toneMapHueCorrection",
+        .binding = &shader_injection.toneMapHueCorrection,
+        .default_value = 50.f,
+        .label = "Hue Correction",
+        .section = "Tone Mapping",
+        .tooltip = "Emulates hue shifting from the vanilla tonemapper",
+        .max = 100.f,
+        .is_enabled = []() { return shader_injection.toneMapType == 3; },
+        .parse = [](float value) { return value * 0.01f; },
     },
     new renodx::utils::settings::Setting{
         .key = "colorGradeExposure",
@@ -207,6 +209,7 @@ void OnPresetOff() {
   renodx::utils::settings::UpdateSetting("toneMapPeakNits", 203.f);
   renodx::utils::settings::UpdateSetting("toneMapGameNits", 203.f);
   renodx::utils::settings::UpdateSetting("toneMapUINits", 203.f);
+  renodx::utils::settings::UpdateSetting("toneMapHueCorrection", 0.f);
   renodx::utils::settings::UpdateSetting("colorGradeExposure", 1.f);
   renodx::utils::settings::UpdateSetting("colorGradeHighlights", 50.f);
   renodx::utils::settings::UpdateSetting("colorGradeShadows", 50.f);
