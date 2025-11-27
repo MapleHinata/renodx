@@ -1764,6 +1764,12 @@ static void OnInitSwapchain(reshade::api::swapchain* swapchain, bool resize) {
     return;
   }
 
+  auto* dxvk_swapchain = utils::swapchain::GetExtendedDXVKSwapchain(swapchain);
+  if (dxvk_swapchain != nullptr) {
+    reshade::log::message(reshade::log::level::debug, "mods::swapchain::OnInitSwapchain(Unlocking additional formats for D3D9)");
+    dxvk_swapchain->UnlockAdditionalFormats();
+  }
+
   auto primary_swapchain_desc = device->get_resource_desc(swapchain->get_current_back_buffer());
 
   {

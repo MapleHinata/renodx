@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <d3d9.h>
 #include <dxgi1_6.h>
 #include <algorithm>
 #include <chrono>
@@ -20,6 +21,8 @@
 
 #include <crc32_hash.hpp>
 #include <include/reshade.hpp>
+
+#include <src/d3d9/d3d9_interfaces.h>
 
 #include "./data.hpp"
 #include "./device.hpp"
@@ -126,6 +129,24 @@ static bool IsDirectX(reshade::api::swapchain* swapchain) {
 static bool IsDXGI(reshade::api::swapchain* swapchain) {
   auto* device = swapchain->get_device();
   return device::IsDXGI(device);
+}
+
+static ID3D9VkExtSwapchain* GetExtendedDXVKSwapchain(reshade::api::swapchain* swapchain) {
+  auto* device = swapchain->get_device();
+  if (device->get_api() != reshade::api::device_api::d3d9) {
+    return nullptr;
+  }
+
+  auto* native_swapchain = reinterpret_cast<IDirect3DSwapChain9Ex*>(swapchain->get_native());
+
+  ID3D9VkExtSwapchain* dxvk_swapchain;
+
+  if (!SUCCEEDED(native_swapchain->QueryInterface(IID_PPV_ARGS(&dxvk_swapchain)))) {
+    reshade::log::message(reshade::log::level::error, "GetExtendedDXVKSwapchain(Failed to get ID3D9VkExtSwapchain)");
+    return nullptr;
+  }
+
+  return dxvk_swapchain;
 }
 
 static std::optional<DXGI_OUTPUT_DESC1> GetDirectXOutputDesc1(reshade::api::swapchain* swapchain) {
@@ -460,6 +481,34 @@ static bool ChangeColorSpace(reshade::api::swapchain* swapchain, reshade::api::c
     }
     swapchain4->Release();
     swapchain4 = nullptr;
+  } else if (IsDirectX(swapchain)) {
+    auto* dxvk_swapchain = GetExtendedDXVKSwapchain(swapchain);
+    if (dxvk_swapchain != nullptr) {
+      VkColorSpaceKHR vk_color_space = VkColorSpaceKHR::VK_COLOR_SPACE_MAX_ENUM_KHR;
+      switch (color_space) {
+        case reshade::api::color_space::srgb_nonlinear:       vk_color_space = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; break;
+        case reshade::api::color_space::extended_srgb_linear: vk_color_space = VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT; break;
+        case reshade::api::color_space::hdr10_st2084:         vk_color_space = VK_COLOR_SPACE_HDR10_ST2084_EXT; break;
+        case reshade::api::color_space::hdr10_hlg:            vk_color_space = VK_COLOR_SPACE_HDR10_HLG_EXT; break;
+        default:                                              return false;
+      }
+
+      const HRESULT hr = dxvk_swapchain->SetColorSpace(vk_color_space);
+
+      if (FAILED(hr)) {
+        if (dxvk_swapchain != nullptr) {
+          dxvk_swapchain->Release();
+          dxvk_swapchain = nullptr;
+        }
+        std::stringstream s;
+        s << "renodx::utils::swapchain::ChangeColorSpace(Failed to set DXVK color space, hr = 0x" << std::hex << hr << std::dec << ")";
+        reshade::log::message(reshade::log::level::warning, s.str().c_str());
+        return false;
+      }
+
+      dxvk_swapchain->Release();
+      dxvk_swapchain = nullptr;
+    }
   } else {
     // Vulkan ???
   }
@@ -488,7 +537,73 @@ static void ResizeBuffer(
     reshade::api::swapchain* swapchain,
     reshade::api::format format = reshade::api::format::r16g16b16a16_float,
     reshade::api::color_space color_space = reshade::api::color_space::unknown) {
-  if (!IsDXGI(swapchain)) return;
+  if (!IsDirectX(swapchain)) return;
+
+  auto* dxvk_swapchain = GetExtendedDXVKSwapchain(swapchain);
+  if (dxvk_swapchain != nullptr) {
+    auto* native_swapchain = reinterpret_cast<IDirect3DSwapChain9Ex*>(swapchain->get_native());
+
+    D3DPRESENT_PARAMETERS desc;
+    if (FAILED(native_swapchain->GetPresentParameters(&desc))) {
+      reshade::log::message(reshade::log::level::error, "resize_buffer(Failed to get desc)");
+      dxvk_swapchain->Release();
+      dxvk_swapchain = nullptr;
+      return;
+    }
+    auto new_format = D3DFMT_A16B16G16R16F;
+    if (desc.BackBufferFormat == new_format) {
+      reshade::log::message(reshade::log::level::debug, "resize_buffer(Format OK)");
+      dxvk_swapchain->Release();
+      dxvk_swapchain = nullptr;
+      return;
+    }
+    reshade::log::message(reshade::log::level::debug, "resize_buffer(Resizing...)");
+
+    renodx::utils::resource::OnDestroySwapchain(swapchain, true);
+
+    desc.BackBufferFormat = new_format;
+
+    auto* device = reinterpret_cast<IDirect3DDevice9Ex*>(swapchain->get_device()->get_native());
+
+    const HRESULT hr = device->Reset(&desc);
+
+    dxvk_swapchain->Release();
+    dxvk_swapchain = nullptr;
+
+    renodx::utils::resource::OnInitSwapchain(swapchain, true);
+
+    if (hr != D3D_OK) {
+      std::stringstream s;
+      s << "mods::swapchain::ResizeBuffer(Failed to recreate D3D9 swapchain.";
+      s << ", BufferCount = " << desc.BackBufferCount;
+      s << ", Width = " << desc.BackBufferWidth;
+      s << ", Height = " << desc.BackBufferHeight;
+      s << ", Format = " << desc.BackBufferFormat;
+      s << ", Flags = 0x" << std::hex << desc.Flags << std::dec;
+      s << ')';
+      reshade::log::message(reshade::log::level::error, s.str().c_str());
+      return;
+    }
+    {
+      std::stringstream s;
+      s << "mods::swapchain::ResizeBuffer(";
+      s << "resize: " << hr;
+      s << ")";
+      reshade::log::message(reshade::log::level::info, s.str().c_str());
+    }
+
+    // Reshade doesn't actually inspect colorspace
+    // auto colorspace = swapchain->get_color_space();
+    if (color_space != reshade::api::color_space::unknown) {
+      if (ChangeColorSpace(swapchain, color_space)) {
+        reshade::log::message(reshade::log::level::info, "resize_buffer(Color Space: OK)");
+      } else {
+        reshade::log::message(reshade::log::level::error, "resize_buffer(Color Space: Failed.)");
+      }
+    }
+    return;
+  }
+
   auto* native_swapchain = reinterpret_cast<IDXGISwapChain*>(swapchain->get_native());
 
   IDXGISwapChain4* swapchain4;
