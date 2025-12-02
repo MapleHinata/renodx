@@ -137,7 +137,7 @@ static ID3D9VkExtSwapchain* GetExtendedDXVKSwapchain(reshade::api::swapchain* sw
     return nullptr;
   }
 
-  auto* native_swapchain = reinterpret_cast<IDirect3DSwapChain9Ex*>(swapchain->get_native());
+  auto* native_swapchain = reinterpret_cast<IDirect3DSwapChain9*>(swapchain->get_native());
 
   ID3D9VkExtSwapchain* dxvk_swapchain;
 
@@ -541,7 +541,7 @@ static void ResizeBuffer(
 
   auto* dxvk_swapchain = GetExtendedDXVKSwapchain(swapchain);
   if (dxvk_swapchain != nullptr) {
-    auto* native_swapchain = reinterpret_cast<IDirect3DSwapChain9Ex*>(swapchain->get_native());
+    auto* native_swapchain = reinterpret_cast<IDirect3DSwapChain9*>(swapchain->get_native());
 
     D3DPRESENT_PARAMETERS desc;
     if (FAILED(native_swapchain->GetPresentParameters(&desc))) {
@@ -563,12 +563,14 @@ static void ResizeBuffer(
 
     desc.BackBufferFormat = new_format;
 
-    auto* device = reinterpret_cast<IDirect3DDevice9Ex*>(swapchain->get_device()->get_native());
+    auto* device = reinterpret_cast<IDirect3DDevice9*>(swapchain->get_device()->get_native());
 
     const HRESULT hr = device->Reset(&desc);
 
     dxvk_swapchain->Release();
     dxvk_swapchain = nullptr;
+    device->Release();
+    device = nullptr;
 
     renodx::utils::resource::OnInitSwapchain(swapchain, true);
 

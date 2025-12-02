@@ -1625,6 +1625,25 @@ static bool OnCreateSwapchain(reshade::api::swapchain_desc& desc, void* hwnd) {
       }
     }
   } else if (device_api == reshade::api::device_api::d3d9) {
+    if (!use_resize_buffer && !use_device_proxy) {
+      // D3DFMT_A2R10G10B10 is a supported backbuffer format on D3D9, but D3DFMT_A2B10G10R10 is not, very cool D3D9. :(
+      if (target_format == reshade::api::format::r10g10b10a2_unorm) {
+        // This is allowed by dxvk without ID3D9VkExtSwapchain->UnlockAdditionalFormats()
+        target_format = reshade::api::format::b10g10r10a2_unorm;
+      }
+
+      // Using r16g16b16a16_float on swapchain creation requires a modified build of dxvk, as UnlockAdditionalFormats()
+      // can not be called without a swapchain at the moment :/
+      if (target_format == reshade::api::format::r16g16b16a16_float) {
+        std::stringstream s;
+        s << "mods::swapchain::OnCreateSwapchain(r16g16b16a16_float is not a supported backbuffer format on native D3D9,";
+        s << "this will cause device creation to fail on unmodified dxvk and on native D3D9 drivers!";
+        s << ")";
+        reshade::log::message(reshade::log::level::warning, s.str().c_str());
+      }
+
+      desc.back_buffer.texture.format = target_format;
+    }
     if (prevent_full_screen || use_device_proxy) {
       desc.present_flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
       // desc.present_mode |= D3DSWAPEFFECT_FLIPEX;

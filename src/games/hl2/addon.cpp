@@ -16,6 +16,7 @@
 #include "../../mods/shader.hpp"
 #include "../../mods/swapchain.hpp"
 #include "../../utils/settings.hpp"
+#include "../../utils/d3d9_hook.hpp"
 #include "./shared.h"
 
 namespace {
@@ -347,7 +348,7 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
       //reshade::register_event<reshade::addon_event::init_swapchain>(OnInitSwapchain);
 
       if (!initialized) {
-        //while (!IsDebuggerPresent()) Sleep(100);
+        while (!IsDebuggerPresent()) Sleep(100);
         renodx::mods::shader::expected_constant_buffer_index = 13;
         renodx::mods::shader::constant_buffer_offset = 50 * 4;
 
@@ -356,13 +357,14 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
         //renodx::mods::swapchain::prevent_full_screen = false;
         //renodx::mods::swapchain::force_screen_tearing = false;
         renodx::mods::swapchain::use_resource_cloning = true;
-        renodx::mods::swapchain::use_resize_buffer = true;
-        renodx::mods::swapchain::use_resize_buffer_on_set_full_screen = true;
-        //renodx::mods::swapchain::swap_chain_proxy_vertex_shader = __swap_chain_proxy_vertex_shader;
-        //renodx::mods::swapchain::swap_chain_proxy_pixel_shader = __swap_chain_proxy_pixel_shader;
-        //renodx::mods::swapchain::swapchain_proxy_compatibility_mode = true;
-        //renodx::mods::swapchain::set_color_space = false;
-        //renodx::mods::swapchain::use_device_proxy = true;
+        // renodx::mods::swapchain::use_resize_buffer = true;
+        // renodx::mods::swapchain::use_resize_buffer_on_set_full_screen = true;
+        // renodx::mods::swapchain::swap_chain_proxy_vertex_shader = __swap_chain_proxy_vertex_shader;
+        // renodx::mods::swapchain::swap_chain_proxy_pixel_shader = __swap_chain_proxy_pixel_shader;
+        // renodx::mods::swapchain::swapchain_proxy_compatibility_mode = true;
+        // renodx::mods::swapchain::set_color_space = false;
+        // renodx::mods::swapchain::use_device_proxy = true;
+        // renodx::mods::swapchain::SetUseHDR10();
 
         renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
             .old_format = reshade::api::format::b8g8r8a8_unorm,
@@ -374,12 +376,13 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
 
       break;
     case DLL_PROCESS_DETACH:
-      reshade::unregister_event<reshade::addon_event::init_swapchain>(OnInitSwapchain);
+      // reshade::unregister_event<reshade::addon_event::init_swapchain>(OnInitSwapchain);
       reshade::unregister_addon(h_module);
       break;
   }
 
   renodx::utils::settings::Use(fdw_reason, &settings, &OnPresetOff);
+  renodx::utils::d3d9_hook::Use(fdw_reason);
   renodx::mods::swapchain::Use(fdw_reason, &shader_injection);
   renodx::mods::shader::Use(fdw_reason, custom_shaders, &shader_injection);
 

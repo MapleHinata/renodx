@@ -23,4 +23,4 @@
 	url = https://github.com/serge-sans-paille/frozen.git
 [submodule "external/dxvk"]
 	path = external/dxvk
-	url = https://github.com/doitsujin/dxvk.git
+	url = https://github.com/MapleHinata/dxvk.git
