@@ -502,6 +502,8 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
       });
 
       renodx::mods::swapchain::SetUseHDR10();
+      renodx::mods::swapchain::prevent_full_screen = false;
+      renodx::mods::swapchain::force_borderless = false;
 
       reshade::register_event<reshade::addon_event::init_device>(OnInitDevice);
       reshade::register_event<reshade::addon_event::destroy_device>(OnDestroyDevice);
