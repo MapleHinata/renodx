@@ -3,13 +3,13 @@ name: Clang x64
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [ main ]
     paths-ignore:
       - "**/*.md"
       - "docs/**"
       - ".github/workflows/**"
   pull_request:
-    branches: [main]
+    branches: [ main ]
     paths-ignore:
       - "**/*.md"
       - "docs/**"
@@ -48,7 +48,8 @@ jobs:
           arch: amd64
 
       - name: Configure CMake (x64)
-        run: cmake --preset clang-x64 -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+        run: cmake --preset clang-x64 -DCMAKE_C_COMPILER_LAUNCHER=sccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
       - name: Build (x64)
         run: cmake --build --preset clang-x64-release --verbose --target ffxiv
@@ -57,3 +58,8 @@ jobs:
         if: always()
         run: sccache --show-stats
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: -${{ github.sha }}-${{matrix.runs-on}}
+          path: build\release\*.addon64
