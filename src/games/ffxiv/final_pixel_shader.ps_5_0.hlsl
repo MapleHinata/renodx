@@ -21,7 +21,7 @@ void main(
     // apply ui brightness
     color.rgb *= injectedData.toneMapUINits;
 
-    color = renodx::color::pq::EncodeSafe(color, 1.f);
+    color.rgb = renodx::color::pq::EncodeSafe(color.rgb, 1.f);
 
     output.rgba = color;
 }
