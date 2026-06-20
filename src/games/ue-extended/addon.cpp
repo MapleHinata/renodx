@@ -1832,6 +1832,18 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
             .resource_tag = 1.f,
         });
 
+        renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
+            .old_format = reshade::api::format::r10g10b10a2_unorm,
+            .new_format = reshade::api::format::r16g16b16a16_float,
+            .dimensions = {.width = 3024, .height = 1892},
+            .use_resource_view_cloning = true,
+            .usage_include = reshade::api::resource_usage::render_target
+                           | (g_upgrade_copy_destinations == 0.f
+                                  ? reshade::api::resource_usage::undefined
+                                  : reshade::api::resource_usage::copy_dest)
+
+        });
+
         AddGamePatches();
 
         initialized = true;
